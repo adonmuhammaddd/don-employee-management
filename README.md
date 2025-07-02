@@ -77,6 +77,14 @@ Execute from root project folder
 ```http
   POST /employees
 ```
+| Parameter  | Type     | Description                       |
+| :--------  | :------- | :-------------------------------- |
+| `firstName`| `string` | **Required**. First Name of item to fetch |
+| `lastName` | `string` | **Required**. Last Name of item to fetch |
+| `phone`    | `string` | **Required**. Phone of item to fetch |
+| `gender`   | `string` | **Required**. Gender of item to fetch |
+| `address`   | `string` | **Required**. Address of item to fetch |
+
 #### Edit employee
 ```http
   PATCH /employees/:id
