@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import EmployeeFormModal from '@/components/EmployeeFormModal';
+import Cookies from 'js-cookie';
 
 type Employee = {
   id: number;
@@ -18,9 +19,12 @@ export default function EmployeePage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [employeeList, setEmployeeList] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const loggedUser = Cookies.get('loggedUser')
 
   useEffect(() => {
-    fetch('http://localhost:3001/employees')
+    fetch('http://localhost:3001/employees', {
+      headers: { 'Content-Type': 'application/json' },
+    })
       .then((res) => res.json())
       .then((data) => {
         setEmployeeList(data);
@@ -62,6 +66,21 @@ export default function EmployeePage() {
   }
   };
 
+  const handleDeleteEmployee = async (id: number) => {
+  const confirm = window.confirm('Yakin ingin menghapus karyawan ini?');
+  if (!confirm) return;
+
+  try {
+    await fetch(`http://localhost:3001/employees/${id}`, {
+      method: 'DELETE',
+    });
+
+    setEmployeeList((prev) => prev.filter((emp) => emp.id !== id));
+  } catch (err) {
+    console.error('Gagal menghapus karyawan:', err);
+  }
+};
+
   const [search, setSearch] = useState('');
   const [entriesPerPage, setEntriesPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +101,6 @@ export default function EmployeePage() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const handleSort = (field: keyof Employee) => {
     if (sortField === field) {
-      // Toggle direction
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
@@ -119,14 +137,13 @@ export default function EmployeePage() {
 
   const handleEntriesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setEntriesPerPage(Number(e.target.value));
-    setCurrentPage(1); // reset ke page pertama
+    setCurrentPage(1);
   };
 
   return (
     <div>
       <h2 className="text-2xl font-bold mb-4">Daftar Karyawan</h2>
 
-      {/* Search & Entries */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
         <div>
           <label className="text-sm mr-2">Show</label>
@@ -165,7 +182,6 @@ export default function EmployeePage() {
         </button>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow rounded">
           <thead className="bg-gray-200">
@@ -217,6 +233,12 @@ export default function EmployeePage() {
                   >
                     Edit
                   </button>
+                  <button
+                    className="text-red-600 hover:underline"
+                    onClick={() => handleDeleteEmployee(emp.id)}
+                  >
+                    Hapus
+                  </button>
                 </td>
               </tr>
             ))}
@@ -231,7 +253,6 @@ export default function EmployeePage() {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex items-center justify-between mt-4">
         <div className="text-sm text-gray-600">
           Menampilkan {(currentPage - 1) * entriesPerPage + 1} -{' '}

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Employee } from './employee.entity';
-import { CreateEmployeeDto } from './create-employee.dto';
+import { Employee } from '../entities/employee.entity';
+import { CreateEmployeeDto } from '../dtos/create-employee.dto';
 
 @Injectable()
 export class EmployeeService {
@@ -23,5 +23,9 @@ export class EmployeeService {
   async update(id: number, data: Partial<CreateEmployeeDto>) {
     await this.repo.update(id, data);
     return this.repo.findOneBy({ id });
+  }
+
+  async remove(id: number) {
+    return this.repo.delete(id);
   }
 }

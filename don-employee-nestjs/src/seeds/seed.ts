@@ -1,11 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { EmployeeService } from '../employee/employee.service';
-import { CreateEmployeeDto } from '../employee/create-employee.dto';
+import { CreateEmployeeDto } from '../dtos/create-employee.dto';
+import { UserService } from '../user/user.service';
+import { CreateUserDto } from '../dtos/create-user.dto';
+import * as bcrypt from 'bcrypt';
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
   const employeeService = app.get(EmployeeService);
+  const userService = app.get(UserService);
 
   const employees: CreateEmployeeDto[] = [
     {
@@ -90,8 +94,37 @@ async function bootstrap() {
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+  const suPass = await bcrypt.hash('admin123', 10);
+  const adminPass = await bcrypt.hash('admin', 10);
+  const users: CreateUserDto[] = [
+    {
+      firstName: 'Don',
+      lastName: 'Muhammad',
+      email: 'don.dev.exe@gmail.com',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      password: suPass,
+      birthDate: '1996-02-06',
+      gender: 'Laki-laki',
+      role: 'Super Admin',
+    },
+    {
+      firstName: 'Joko',
+      lastName: 'Joko',
+      email: 'joko@mail.com',
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      password: adminPass,
+      birthDate: '1986-06-16',
+      gender: 'Laki-laki',
+      role: 'Admin',
+    },
+  ];
+
   for (const emp of employees) {
     await employeeService.create(emp);
+  }
+  for (const usr of users) {
+    await userService.create(usr);
   }
 
   console.log('✅ Seeding completed!');

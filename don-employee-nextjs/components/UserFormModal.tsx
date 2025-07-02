@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 type Props = {
   isOpen: boolean;
@@ -9,12 +11,16 @@ type Props = {
   defaultValues?: any;
 };
 
-export default function EmployeeFormModal({ isOpen, onClose, onSubmit, defaultValues }: Props) {
+export default function UserFormModal({ isOpen, onClose, onSubmit, defaultValues }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [gender, setGender] = useState('');
+  const [role, setRole] = useState('');
+  const [birthDate, setBirthDate] = useState<Date | null>(null);
   useEffect(() => {
     setGender(defaultValues?.gender || '');
+    setRole(defaultValues?.role || '');
+    setBirthDate(defaultValues?.birthDate || '');
   }, [defaultValues]);
 
   useEffect(() => {
@@ -24,6 +30,7 @@ export default function EmployeeFormModal({ isOpen, onClose, onSubmit, defaultVa
       ref.current?.close();
       formRef.current?.reset();
       setGender('');
+      setRole('');
     }
   }, [isOpen]);
 
@@ -32,16 +39,17 @@ export default function EmployeeFormModal({ isOpen, onClose, onSubmit, defaultVa
     const form = e.currentTarget;
     const formData = new FormData(form);
 
-    const newEmployee = {
+    const newUser = {
       firstName: formData.get('firstName') as string,
       lastName: formData.get('lastName') as string,
       email: formData.get('email') as string,
-      phone: formData.get('phone') as string,
-      address: formData.get('address') as string,
-      gender: formData.get('gender') as string,
+      birthDate: birthDate?.toISOString().split("T")[0] || "",
+      gender: gender,
+      password: formData.get('password') as string,
+      role: role,
     };
 
-    onSubmit(newEmployee);
+    onSubmit(newUser);
     onClose();
   };
 
@@ -84,16 +92,19 @@ export default function EmployeeFormModal({ isOpen, onClose, onSubmit, defaultVa
                   placeholder="Email"
                   className="input input-bordered col-span-2"
                 />
+                <div className="col-span-2">
+                  <label className="block text-sm mb-1">Tanggal Lahir</label>
+                  <DatePicker
+                    selected={birthDate}
+                    onChange={(date) => setBirthDate(date)}
+                    dateFormat="yyyy-MM-dd"
+                    className="input input-bordered w-full"
+                  />
+                </div>
                 <input
-                  name="phone"
-                  defaultValue={defaultValues?.phone || ''}
-                  required
-                  placeholder="No HP"
-                  className="input input-bordered col-span-2"
-                />
-                <input
-                  name="address"
-                  defaultValue={defaultValues?.address || ''}
+                  name="password"
+                  type='password'
+                  defaultValue={defaultValues?.password || ''}
                   placeholder="Alamat"
                   className="input input-bordered col-span-2"
                 />
@@ -107,6 +118,18 @@ export default function EmployeeFormModal({ isOpen, onClose, onSubmit, defaultVa
                   <option value="">-- Pilih Jenis Kelamin --</option>
                   <option value="Laki-laki">Laki-laki</option>
                   <option value="Perempuan">Perempuan</option>
+                </select>
+                <select
+                  name="role"
+                  required
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="input input-bordered col-span-2"
+                >
+                  <option value="">-- Pilih Role --</option>
+                  <option value="User">User</option>
+                  <option value="Admin">Admin</option>
+                  <option value="Super Admin">Super Admin</option>
                 </select>
               </div>
 

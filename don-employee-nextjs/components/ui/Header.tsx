@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import Cookies from 'js-cookie';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -24,11 +25,12 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    alert('Logout!');
+    Cookies.remove('user');
+    router.push('/auth/signin');
   };
 
   const handleProfile = () => {
-    router.push('/dashboard/profile');
+    router.push('/auth/profile');
   };
 
   return (
